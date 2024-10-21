@@ -29,6 +29,19 @@ export default function MainFrame() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      for (const gamepad of navigator.getGamepads()) {
+        if (!gamepad) {
+          continue;
+        }
+        gamepad.buttons.forEach((button, index) => {
+          if (button.pressed) {
+            console.log(`Button ${index} pressed`);
+          }
+        });
+        setPos((prev) => ({ x: prev.x + gamepad.axes[0] * 5, y: prev.y }));
+        setPos((prev) => ({ x: prev.x, y: prev.y + gamepad.axes[1] * 5 }));
+      }
+
       const DELTA = 3;
       pressedKeys.current.forEach((key) => {
         if (key === "ArrowRight" || key === "d") {
@@ -44,13 +57,28 @@ export default function MainFrame() {
           setPos((prev) => ({ x: prev.x, y: prev.y + DELTA }));
         }
       });
-      console.log(pressedKeys.current);
     }, 1000 / 60);
 
     return () => {
       clearInterval(interval);
     };
   }, [pressedKeys]);
+
+  useEffect(() => {
+    const listener = (e: GamepadEvent) => {
+      console.log(
+        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
+        e.gamepad.index,
+        e.gamepad.id,
+        e.gamepad.buttons.length,
+        e.gamepad.axes.length,
+      );
+    };
+    window.addEventListener("gamepadconnected", listener);
+    return () => {
+      window.removeEventListener("gamepadconnected", listener);
+    };
+  }, []);
 
   return (
     <Stage width={640} height={480}>
