@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Layer, Rect, Stage, Text } from "react-konva";
+import { Layer, Rect, Stage } from "react-konva";
 
 interface Position {
   x: number;
@@ -83,7 +83,6 @@ export default function MainFrame() {
   return (
     <Stage width={640} height={480}>
       <Layer>
-        <Text text="Hello, World!" fontSize={64} />
         <Rect x={pos.x} y={pos.y} width={50} height={50} fill="#00f0f0" />
       </Layer>
     </Stage>
