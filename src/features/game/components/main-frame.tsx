@@ -57,7 +57,7 @@ export default function MainFrame() {
           setPos((prev) => ({ x: prev.x, y: prev.y + DELTA }));
         }
       });
-    }, 1000 / 60);
+    }, 10);
 
     return () => {
       clearInterval(interval);
