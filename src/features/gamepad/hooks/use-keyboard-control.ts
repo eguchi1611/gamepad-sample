@@ -1,8 +1,8 @@
 import { useEffect, useRef } from "react";
-import { useGamepad } from "./use-gamepad";
+import { useInputRef } from "./use-input-ref";
 
 export function useKeyboardControl() {
-  const { gamepadstatus } = useGamepad();
+  const { inputRef } = useInputRef();
   const pressedKeys = useRef<string[]>([]);
 
   useEffect(() => {
@@ -52,14 +52,14 @@ export function useKeyboardControl() {
         y /= length;
       }
       const delta = 2;
-      gamepadstatus.axes[0] = x * delta;
-      gamepadstatus.axes[1] = y * delta;
+      inputRef.current.axes.keyboard.x = x * delta;
+      inputRef.current.axes.keyboard.y = y * delta;
     };
     window.addEventListener("tick", listener);
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [gamepadstatus]);
+  }, [inputRef]);
 }
 
 function isValidKey(key: string) {

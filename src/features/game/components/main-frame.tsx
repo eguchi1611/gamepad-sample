@@ -1,4 +1,4 @@
-import { useGamepad } from "@/features/gamepad/hooks/use-gamepad";
+import { useInputRef } from "@/features/gamepad/hooks/use-input-ref";
 import { useKeyboardControl } from "@/features/gamepad/hooks/use-keyboard-control";
 import { useEffect, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
@@ -10,7 +10,7 @@ interface Position {
 
 export default function MainFrame() {
   const [pos, setPos] = useState<Position>({ x: 20, y: 20 });
-  const { gamepadstatus } = useGamepad();
+  const { inputRef } = useInputRef();
 
   useKeyboardControl();
 
@@ -35,25 +35,21 @@ export default function MainFrame() {
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [gamepadstatus]);
-
-  useEffect(() => {
-    console.log("================gamepad updated================");
-  }, [gamepadstatus]);
+  }, [inputRef]);
 
   useEffect(() => {
     const listener = () => {
       for (const gamepad of navigator.getGamepads()) {
         if (!gamepad) continue;
         if (Math.abs(gamepad.axes[0]) > 0.05) {
-          gamepadstatus.axes[0] = gamepad.axes[0] * 2;
+          inputRef.current.axes.gamepad.x = gamepad.axes[0] * 2;
         } else {
-          gamepadstatus.axes[0] = 0;
+          inputRef.current.axes.gamepad.x = 0;
         }
         if (Math.abs(gamepad.axes[1]) > 0.05) {
-          gamepadstatus.axes[1] = gamepad.axes[1] * 2;
+          inputRef.current.axes.gamepad.y = gamepad.axes[1] * 2;
         } else {
-          gamepadstatus.axes[1] = 0;
+          inputRef.current.axes.gamepad.y = 0;
         }
       }
     };
@@ -61,26 +57,24 @@ export default function MainFrame() {
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [gamepadstatus]);
+  }, [inputRef]);
 
   useEffect(() => {
     const listener = () => {
-      console.log(gamepadstatus.axes[0]);
-      
-      if (!isNaN(gamepadstatus.axes[0]) && gamepadstatus.axes[0] !== 0) {
-        console.log("move");
-        
-        setPos((pos) => ({ ...pos, x: pos.x + gamepadstatus.axes[0] }));
+      const addX = inputRef.current.axes.gamepad.x + inputRef.current.axes.keyboard.x;
+      const addY = inputRef.current.axes.gamepad.y + inputRef.current.axes.keyboard.y;
+      if (addX !== 0) {
+        setPos((pos) => ({ ...pos, x: pos.x + addX }));
       }
-      if (!isNaN(gamepadstatus.axes[1]) && gamepadstatus.axes[1] !== 0) {
-        setPos((pos) => ({ ...pos, y: pos.y + gamepadstatus.axes[1] }));
+      if (addY !== 0) {
+        setPos((pos) => ({ ...pos, y: pos.y + addY }));
       }
     };
     window.addEventListener("tick", listener);
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [gamepadstatus]);
+  }, [inputRef]);
 
   useEffect(() => {
     const listener = (e: GamepadEvent) => {
