@@ -4,20 +4,19 @@ import { StateView } from "@/features/input/components/state-view";
 import { useGamepadControl } from "@/features/input/hooks/use-gamepad-control";
 import { useInputRef } from "@/features/input/hooks/use-input-ref";
 import { useKeyboardControl } from "@/features/input/hooks/use-keyboard-control";
-import { database } from "@/firebase";
-import { ref, update } from "firebase/database";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 import { Html } from "react-konva-utils";
+import { useRemotePos } from "../hooks/use-remote-pos";
 import { SignInView } from "./sign-in-view";
 
 export default function MainFrame() {
   const [pos, setPos] = useAtom(posAtom);
   const { inputRef } = useInputRef();
-
   const { user, isLoading } = useUser();
 
+  useRemotePos();
   useKeyboardControl();
   useGamepadControl();
 
@@ -49,11 +48,6 @@ export default function MainFrame() {
       window.removeEventListener("tick", listener);
     };
   }, [inputRef, setPos]);
-
-  useEffect(() => {
-    if (!user) return;
-    update(ref(database, `users/${user.uid}/pos`), pos);
-  }, [user, pos]);
 
   return (
     <Stage width={640} height={480} className="relative">
