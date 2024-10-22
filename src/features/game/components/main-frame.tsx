@@ -1,8 +1,8 @@
-import { StateView } from "@/features/gamepad/components/state-view";
-import { useGamepadControl } from "@/features/gamepad/hooks/use-gamepad-control";
-import { useInputRef } from "@/features/gamepad/hooks/use-input-ref";
-import { useKeyboardControl } from "@/features/gamepad/hooks/use-keyboard-control";
 import { posAtom } from "@/features/global-state/atoms/pos-atom";
+import { StateView } from "@/features/input/components/state-view";
+import { useGamepadControl } from "@/features/input/hooks/use-gamepad-control";
+import { useInputRef } from "@/features/input/hooks/use-input-ref";
+import { useKeyboardControl } from "@/features/input/hooks/use-keyboard-control";
 import { useAtom } from "jotai";
 import { useEffect } from "react";
 import { Layer, Rect, Stage } from "react-konva";
