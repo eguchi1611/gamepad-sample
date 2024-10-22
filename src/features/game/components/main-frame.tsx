@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { useGamepad } from "@/features/gamepad/hooks/use-gamepad";
+import { useEffect, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 
 interface Position {
@@ -8,61 +9,71 @@ interface Position {
 
 export default function MainFrame() {
   const [pos, setPos] = useState<Position>({ x: 20, y: 20 });
-  const pressedKeys = useRef<string[]>([]);
+  const { gamepadstatus } = useGamepad();
+
+  // console.log("render");
 
   useEffect(() => {
-    const keyDownListener = (e: KeyboardEvent) => {
-      pressedKeys.current = pressedKeys.current.includes(e.key) ? pressedKeys.current : [...pressedKeys.current, e.key];
-    };
-    window.addEventListener("keydown", keyDownListener);
-
-    const keyUpListener = (e: KeyboardEvent) => {
-      pressedKeys.current = pressedKeys.current.filter((key) => key !== e.key);
-    };
-    window.addEventListener("keyup", keyUpListener);
-
-    return () => {
-      window.removeEventListener("keydown", keyDownListener);
-      window.removeEventListener("keyup", keyUpListener);
-    };
-  }, []);
-
-  useEffect(() => {
+    const delay = 10;
     const interval = setInterval(() => {
-      for (const gamepad of navigator.getGamepads()) {
-        if (!gamepad) {
-          continue;
-        }
-        gamepad.buttons.forEach((button, index) => {
-          if (button.pressed) {
-            console.log(`Button ${index} pressed`);
-          }
-        });
-        setPos((prev) => ({ x: prev.x + gamepad.axes[0] * 5, y: prev.y }));
-        setPos((prev) => ({ x: prev.x, y: prev.y + gamepad.axes[1] * 5 }));
-      }
-
-      const DELTA = 3;
-      pressedKeys.current.forEach((key) => {
-        if (key === "ArrowRight" || key === "d") {
-          setPos((prev) => ({ x: prev.x + DELTA, y: prev.y }));
-        }
-        if (key === "ArrowLeft" || key === "a") {
-          setPos((prev) => ({ x: prev.x - DELTA, y: prev.y }));
-        }
-        if (key === "ArrowUp" || key === "w") {
-          setPos((prev) => ({ x: prev.x, y: prev.y - DELTA }));
-        }
-        if (key === "ArrowDown" || key === "s") {
-          setPos((prev) => ({ x: prev.x, y: prev.y + DELTA }));
-        }
-      });
-    }, 10);
+      dispatchEvent(new CustomEvent("tick"));
+    }, delay);
 
     return () => {
       clearInterval(interval);
     };
-  }, [pressedKeys]);
+  }, []);
+
+  useEffect(() => {
+    const listener = () => {
+      console.dir(JSON.stringify(gamepadstatus));
+    };
+    window.addEventListener("tick", listener);
+    return () => {
+      window.removeEventListener("tick", listener);
+    };
+  }, [gamepadstatus]);
+
+  useEffect(() => {
+    console.log("================gamepad updated================");
+  }, [gamepadstatus]);
+
+  useEffect(() => {
+    const listener = () => {
+      for (const gamepad of navigator.getGamepads()) {
+        if (!gamepad) continue;
+        if (Math.abs(gamepad.axes[0]) > 0.05) {
+          gamepadstatus.axes[0] = gamepad.axes[0] * 2;
+        } else {
+          gamepadstatus.axes[0] = 0;
+        }
+        if (Math.abs(gamepad.axes[1]) > 0.05) {
+          gamepadstatus.axes[1] = gamepad.axes[1] * 2;
+        } else {
+          gamepadstatus.axes[1] = 0;
+        }
+      }
+    };
+    window.addEventListener("tick", listener);
+    return () => {
+      window.removeEventListener("tick", listener);
+    };
+  }, [gamepadstatus]);
+
+  useEffect(() => {
+    const listener = () => {
+      if (!isNaN(gamepadstatus.axes[0]) && gamepadstatus.axes[0] !== 0) {
+        setPos((pos) => ({ ...pos, x: pos.x + gamepadstatus.axes[0] }));
+      }
+      if (!isNaN(gamepadstatus.axes[1]) && gamepadstatus.axes[1] !== 0) {
+        setPos((pos) => ({ ...pos, y: pos.y + gamepadstatus.axes[1] }));
+      }
+    };
+    window.addEventListener("tick", listener);
+    return () => {
+      window.removeEventListener("tick", listener);
+    };
+  }, [gamepadstatus]);
 
   useEffect(() => {
     const listener = (e: GamepadEvent) => {
