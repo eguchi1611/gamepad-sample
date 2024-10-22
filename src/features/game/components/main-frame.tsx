@@ -1,16 +1,15 @@
+import { StateView } from "@/features/gamepad/components/state-view";
 import { useGamepadControl } from "@/features/gamepad/hooks/use-gamepad-control";
 import { useInputRef } from "@/features/gamepad/hooks/use-input-ref";
 import { useKeyboardControl } from "@/features/gamepad/hooks/use-keyboard-control";
-import { useEffect, useState } from "react";
+import { posAtom } from "@/features/global-state/atoms/pos-atom";
+import { useAtom } from "jotai";
+import { useEffect } from "react";
 import { Layer, Rect, Stage } from "react-konva";
-
-interface Position {
-  x: number;
-  y: number;
-}
+import { Html } from "react-konva-utils";
 
 export default function MainFrame() {
-  const [pos, setPos] = useState<Position>({ x: 20, y: 20 });
+  const [pos, setPos] = useAtom(posAtom);
   const { inputRef } = useInputRef();
 
   useKeyboardControl();
@@ -43,10 +42,15 @@ export default function MainFrame() {
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [inputRef]);
+  }, [inputRef, setPos]);
 
   return (
-    <Stage width={640} height={480}>
+    <Stage width={640} height={480} className="relative">
+      <Layer>
+        <Html>
+          <StateView />
+        </Html>
+      </Layer>
       <Layer>
         <Rect x={pos.x} y={pos.y} width={50} height={50} fill="#00f0f0" />
       </Layer>
