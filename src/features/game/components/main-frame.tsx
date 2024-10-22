@@ -1,3 +1,4 @@
+import { useGamepadControl } from "@/features/gamepad/hooks/use-gamepad-control";
 import { useInputRef } from "@/features/gamepad/hooks/use-input-ref";
 import { useKeyboardControl } from "@/features/gamepad/hooks/use-keyboard-control";
 import { useEffect, useState } from "react";
@@ -13,8 +14,7 @@ export default function MainFrame() {
   const { inputRef } = useInputRef();
 
   useKeyboardControl();
-
-  // console.log("render");
+  useGamepadControl();
 
   useEffect(() => {
     const delay = 10;
@@ -29,40 +29,9 @@ export default function MainFrame() {
 
   useEffect(() => {
     const listener = () => {
-      // console.dir(JSON.stringify(gamepadstatus));
-    };
-    window.addEventListener("tick", listener);
-    return () => {
-      window.removeEventListener("tick", listener);
-    };
-  }, [inputRef]);
-
-  useEffect(() => {
-    const listener = () => {
-      for (const gamepad of navigator.getGamepads()) {
-        if (!gamepad) continue;
-        if (Math.abs(gamepad.axes[0]) > 0.05) {
-          inputRef.current.axes.gamepad.x = gamepad.axes[0] * 2;
-        } else {
-          inputRef.current.axes.gamepad.x = 0;
-        }
-        if (Math.abs(gamepad.axes[1]) > 0.05) {
-          inputRef.current.axes.gamepad.y = gamepad.axes[1] * 2;
-        } else {
-          inputRef.current.axes.gamepad.y = 0;
-        }
-      }
-    };
-    window.addEventListener("tick", listener);
-    return () => {
-      window.removeEventListener("tick", listener);
-    };
-  }, [inputRef]);
-
-  useEffect(() => {
-    const listener = () => {
-      const addX = inputRef.current.axes.gamepad.x + inputRef.current.axes.keyboard.x;
-      const addY = inputRef.current.axes.gamepad.y + inputRef.current.axes.keyboard.y;
+      const axes = inputRef.current.axes;
+      const addX = axes.gamepad.x + axes.keyboard.x;
+      const addY = axes.gamepad.y + axes.keyboard.y;
       if (addX !== 0) {
         setPos((pos) => ({ ...pos, x: pos.x + addX }));
       }
@@ -75,22 +44,6 @@ export default function MainFrame() {
       window.removeEventListener("tick", listener);
     };
   }, [inputRef]);
-
-  useEffect(() => {
-    const listener = (e: GamepadEvent) => {
-      console.log(
-        "Gamepad connected at index %d: %s. %d buttons, %d axes.",
-        e.gamepad.index,
-        e.gamepad.id,
-        e.gamepad.buttons.length,
-        e.gamepad.axes.length,
-      );
-    };
-    window.addEventListener("gamepadconnected", listener);
-    return () => {
-      window.removeEventListener("gamepadconnected", listener);
-    };
-  }, []);
 
   return (
     <Stage width={640} height={480}>
