@@ -7,9 +7,12 @@ export function useRemote() {
   const [allData, setAllData] = useState<Remote>();
 
   useEffect(() => {
-    onValue(ref(database, "users"), (snapshot) => {
+    const unsubscribe = onValue(ref(database, "users"), (snapshot) => {
       setAllData(snapshot.val());
     });
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return { remote: allData };
