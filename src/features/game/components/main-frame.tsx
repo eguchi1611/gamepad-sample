@@ -1,4 +1,5 @@
 import { useGamepad } from "@/features/gamepad/hooks/use-gamepad";
+import { useKeyboardControl } from "@/features/gamepad/hooks/use-keyboard-control";
 import { useEffect, useState } from "react";
 import { Layer, Rect, Stage } from "react-konva";
 
@@ -10,6 +11,8 @@ interface Position {
 export default function MainFrame() {
   const [pos, setPos] = useState<Position>({ x: 20, y: 20 });
   const { gamepadstatus } = useGamepad();
+
+  useKeyboardControl();
 
   // console.log("render");
 
@@ -26,7 +29,7 @@ export default function MainFrame() {
 
   useEffect(() => {
     const listener = () => {
-      console.dir(JSON.stringify(gamepadstatus));
+      // console.dir(JSON.stringify(gamepadstatus));
     };
     window.addEventListener("tick", listener);
     return () => {
@@ -62,7 +65,11 @@ export default function MainFrame() {
 
   useEffect(() => {
     const listener = () => {
+      console.log(gamepadstatus.axes[0]);
+      
       if (!isNaN(gamepadstatus.axes[0]) && gamepadstatus.axes[0] !== 0) {
+        console.log("move");
+        
         setPos((pos) => ({ ...pos, x: pos.x + gamepadstatus.axes[0] }));
       }
       if (!isNaN(gamepadstatus.axes[1]) && gamepadstatus.axes[1] !== 0) {
