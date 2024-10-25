@@ -1,16 +1,15 @@
 import { useUser } from "@/features/auth/hooks/use-user";
-import { initializedAtom } from "@/features/global-state/atoms/initialized";
 import { posAtom } from "@/features/global-state/atoms/pos-atom";
 import { useRemote } from "@/features/remote/hooks/use-remote";
 import { database } from "@/firebase";
 import { ref, update } from "firebase/database";
 import { useAtom } from "jotai";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export function useRemotePos() {
   const { remote } = useRemote();
   const { user } = useUser();
-  const [initialized, setInitialized] = useAtom(initializedAtom);
+  const [initialized, setInitialized] = useState(false);
   const [pos, setPos] = useAtom(posAtom);
 
   useEffect(() => {
