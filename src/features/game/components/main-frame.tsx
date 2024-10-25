@@ -43,6 +43,7 @@ export default function MainFrame() {
 
   useEffect(() => {
     const listener = () => {
+      if (!user) return;
       const axes = inputRef.current.axes;
       const addX = axes.gamepad.x + axes.keyboard.x;
       const addY = axes.gamepad.y + axes.keyboard.y;
@@ -68,7 +69,7 @@ export default function MainFrame() {
     return () => {
       window.removeEventListener("tick", listener);
     };
-  }, [inputRef, setPos]);
+  }, [inputRef, setPos, user]);
 
   return (
     <Stage width={WIDTH} height={HEIGHT} className="relative">
