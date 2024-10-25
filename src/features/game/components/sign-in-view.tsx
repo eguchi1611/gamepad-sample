@@ -8,7 +8,10 @@ export function SignInView() {
     e.preventDefault();
     const { name } = Object.fromEntries(new FormData(e.currentTarget));
     const { user } = await signInAnonymously(auth);
-    await set(ref(database, `users/${user.uid}/name`), name);
+    await set(ref(database, `users/${user.uid}`), {
+      name,
+      pos: { x: 0, y: 0 },
+    });
   }, []);
 
   return (
