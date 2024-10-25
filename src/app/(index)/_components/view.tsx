@@ -44,7 +44,7 @@ export function View() {
           </tr>
         </tbody>
       </table>
-      <div className="relative h-[480px] w-[640px] border">
+      <div className="relative h-[482px] w-[642px] border">
         <div className="absolute inset-0 -z-10 m-auto size-fit text-3xl">読み込み中...</div>
         <div className={`opacity-0 transition-opacity duration-500 ${initialized ? "opacity-100" : ""} }`}>
           <MainFrame />

@@ -25,6 +25,11 @@ export default function MainFrame() {
     return Object.fromEntries(Object.entries(remote0).filter(([key]) => key !== user?.uid));
   }, [remote0, user]);
 
+  const myname = useMemo(() => {
+    const uid = user?.uid || "";
+    return remote0?.[uid]?.name || "";
+  }, [remote0, user]);
+
   useEffect(() => {
     const delay = 10;
     const interval = setInterval(() => {
@@ -41,7 +46,6 @@ export default function MainFrame() {
       const axes = inputRef.current.axes;
       const addX = axes.gamepad.x + axes.keyboard.x;
       const addY = axes.gamepad.y + axes.keyboard.y;
-      // if (addX !== 0) {
       setPos((pos) => {
         let newX = pos.x + addX;
         let newY = pos.y + addY;
@@ -59,10 +63,6 @@ export default function MainFrame() {
         }
         return { ...pos, x: newX, y: newY };
       });
-      // }
-      // if (addY !== 0) {
-      //   setPos((pos) => ({ ...pos, y: pos.y + addY }));
-      // }
     };
     window.addEventListener("tick", listener);
     return () => {
@@ -89,6 +89,7 @@ export default function MainFrame() {
       ))}
       <Layer>
         <Rect x={pos.x} y={pos.y} width={BOX_WIDTH} height={BOX_HEIGHT} fill="#00f0f0" />
+        <Text x={pos.x} y={pos.y} text={myname} />
       </Layer>
 
       {!isLoading && !user && (
