@@ -1,15 +1,12 @@
 import { useUser } from "@/features/auth/hooks/use-user";
 import { posAtom } from "@/features/global-state/atoms/pos-atom";
 import { StateView } from "@/features/input/components/state-view";
-import { useGamepadControl } from "@/features/input/hooks/use-gamepad-control";
 import { useInputRef } from "@/features/input/hooks/use-input-ref";
-import { useKeyboardControl } from "@/features/input/hooks/use-keyboard-control";
 import { useRemote } from "@/features/remote/hooks/use-remote";
 import { useAtom } from "jotai";
 import { useEffect, useMemo } from "react";
 import { Layer, Rect, Stage, Text } from "react-konva";
 import { Html } from "react-konva-utils";
-import { useRemotePos } from "../hooks/use-remote-pos";
 import { SignInView } from "./sign-in-view";
 
 const WIDTH = 640;
@@ -27,10 +24,6 @@ export default function MainFrame() {
     if (!remote0) return [];
     return Object.fromEntries(Object.entries(remote0).filter(([key]) => key !== user?.uid));
   }, [remote0, user]);
-
-  useRemotePos();
-  useKeyboardControl();
-  useGamepadControl();
 
   useEffect(() => {
     const delay = 10;
@@ -79,6 +72,9 @@ export default function MainFrame() {
 
   return (
     <Stage width={WIDTH} height={HEIGHT} className="relative">
+      <Layer>
+        <Rect x={0} y={0} width={WIDTH} height={HEIGHT} fill="#ffffff" />
+      </Layer>
       <Layer>
         <Html>
           <StateView />
