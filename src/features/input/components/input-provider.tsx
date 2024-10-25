@@ -8,6 +8,10 @@ export function InputProvider({ children }: PropsWithChildren) {
       gamepad: { x: 0, y: 0 },
       keyboard: { x: 0, y: 0 },
     },
+    speed: {
+      gamepad: { control: false, shift: false },
+      keyboard: { control: false, shift: false },
+    },
   });
   return <InputContext.Provider value={ref}>{children}</InputContext.Provider>;
 }

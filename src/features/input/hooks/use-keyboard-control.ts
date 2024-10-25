@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useInputRef } from "./use-input-ref";
+import { calcSpeed } from "../utils/calc-speed";
 
 export function useKeyboardControl() {
   const { inputRef } = useInputRef();
@@ -7,14 +8,12 @@ export function useKeyboardControl() {
 
   useEffect(() => {
     const keydownListener = (e: KeyboardEvent) => {
-      if (!isValidKey(e.key)) return;
       if (!pressedKeys.current.includes(e.key)) {
-        pressedKeys.current.push(e.key);
+        pressedKeys.current.push(e.key.toLowerCase());
       }
     };
     const keyupListener = (e: KeyboardEvent) => {
-      if (!isValidKey(e.key)) return;
-      pressedKeys.current = pressedKeys.current.filter((key) => key !== e.key);
+      pressedKeys.current = pressedKeys.current.filter((key) => key !== e.key.toLowerCase());
     };
 
     window.addEventListener("keydown", keydownListener);
@@ -44,24 +43,24 @@ export function useKeyboardControl() {
             x += 1;
             break;
         }
+        // 斜め移動の場合の正規化
+        if (x !== 0 || y !== 0) {
+          const length = Math.sqrt(x ** 2 + y ** 2);
+          x /= length;
+          y /= length;
+        }
       }
-      // 斜め移動の場合の正規化
-      if (x !== 0 || y !== 0) {
-        const length = Math.sqrt(x ** 2 + y ** 2);
-        x /= length;
-        y /= length;
-      }
-      const delta = 2;
-      inputRef.current.axes.keyboard.x = x * delta;
-      inputRef.current.axes.keyboard.y = y * delta;
+
+      inputRef.current.speed.keyboard.shift = pressedKeys.current.includes("shift");
+      inputRef.current.speed.keyboard.control = pressedKeys.current.includes("control");
+
+      const speed = calcSpeed(inputRef.current);
+      inputRef.current.axes.keyboard.x = x * speed;
+      inputRef.current.axes.keyboard.y = y * speed;
     };
     window.addEventListener("tick", listener);
     return () => {
       window.removeEventListener("tick", listener);
     };
   }, [inputRef]);
-}
-
-function isValidKey(key: string) {
-  return ["w", "a", "s", "d"].includes(key);
 }
